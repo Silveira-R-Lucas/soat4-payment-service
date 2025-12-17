@@ -18,11 +18,18 @@ module Api
       end
 
       def status
-        render json:  { "successful": true, "status": 200,  id: @cart.id, payment_status: @cart.payment_status }, status: :ok
+        repository = MongoPaymentRepository.new
+        payment = repository.find_by_pedido_id(params[:id])
+
+        if payment
+          render json: { "successful": true, "id": payment.payment_id, "payment_status": payment.status }, status: :ok
+        else
+          render json: { "successful": false, "error": "Pagamento não encontrado" }, status: :not_found
+        end
       end
 
       def payment_params
-        params.require(:payment).permit(:pedido_id, :total_amount, items:)
+        params.permit(:payment).permit(:pedido_id, :total_amount, items:)
       end
     end
   end
