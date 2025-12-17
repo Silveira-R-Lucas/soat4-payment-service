@@ -1,6 +1,8 @@
-require_relative "boot"
+# frozen_string_literal: true
 
-require "rails/all"
+require_relative 'boot'
+
+require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
@@ -36,7 +38,7 @@ module Soat4PaymentService
       #{config.root}/app/infrastructure/workers
     ]
 
-    config.hosts << "pagamento-service"
+    config.hosts << 'pagamento-service'
     config.hosts << /.*\.ngrok-free\.dev/
     # Configuration for the application, engines, and railties goes here.
     #

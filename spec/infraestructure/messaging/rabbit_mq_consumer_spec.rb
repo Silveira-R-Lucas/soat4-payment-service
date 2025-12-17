@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe RabbitmqConsumer do
-  let(:channel) { double("Channel", fanout: double, queue: double(bind: true, subscribe: true), ack: true) }
+  let(:channel) { double('Channel', fanout: double, queue: double(bind: true, subscribe: true), ack: true) }
   let(:create_payment) { instance_double(CreatePayment) }
   let(:publisher) { instance_double(RabbitmqPublisher) }
 
@@ -16,13 +18,13 @@ RSpec.describe RabbitmqConsumer do
     let(:payload) do
       {
         event: 'CarrinhoFinalizado',
-        payload: { "pedido_id" => 1, "total_amount" => 50.0, "items" => [] }
+        payload: { 'pedido_id' => 1, 'total_amount' => 50.0, 'items' => [] }
       }.to_json
     end
 
     it 'cria o pagamento e publica o evento PagamentoCriado' do
-      expect(create_payment).to receive(:execute).with("1", 50.0, []).and_return({ some: "data" })
-      expect(publisher).to receive(:publish).with("PagamentoCriado", { some: "data" })
+      expect(create_payment).to receive(:execute).with('1', 50.0, []).and_return({ some: 'data' })
+      expect(publisher).to receive(:publish).with('PagamentoCriado', { some: 'data' })
 
       consumer.send(:handle_message, payload)
     end
@@ -30,7 +32,7 @@ RSpec.describe RabbitmqConsumer do
     it 'ignora eventos desconhecidos' do
       unknown_payload = { event: 'EventoDesconhecido', payload: {} }.to_json
       expect(Rails.logger).to receive(:warn).with(/No handler for event/)
-      
+
       consumer.send(:handle_message, unknown_payload)
     end
   end

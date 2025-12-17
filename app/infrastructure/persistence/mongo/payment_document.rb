@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class PaymentDocument
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  store_in collection: "payments"
+  store_in collection: 'payments'
 
   field :pedido_id, type: String
   field :amount, type: Float

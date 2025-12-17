@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 class RabbitmqPublisher
-  require "json"
+  require 'json'
 
   def initialize(exchange_name)
     @channel = RabbitmqConnection.channel

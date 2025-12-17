@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MongoPaymentRepository
   def save(payment)
     doc = PaymentDocument.where(payment_id: payment.payment_id).first

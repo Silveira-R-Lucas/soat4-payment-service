@@ -1,37 +1,33 @@
-name: Rails CI/CD Pipeline
+name: CI/CD Pipeline
+
 on:
   push:
-    branches: [ main ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ main ]
+    branches: [ "main", "master" ]
 
 jobs:
-  test-and-lint:
-    name: Test and Lint
+  test-and-analyze:
+    name: Test and SonarCloud Scan
     runs-on: ubuntu-latest
+    
     services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: soat_challenge_fase_01_test
-        ports:
-          - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
+       mongodb:
+         image: mongo:latest
+         ports:
+           - 27017:27017
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  
 
-      - name: Install system dependencies
-        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
-
-      - name: Set up Ruby
+      - name: Configurar Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2.2'
-          bundler-cache: true
+          ruby-version: '3.2.2' 
+          bundler-cache: true 
 
       - name: Lint code with RuboCop
         run: bundle exec rubocop -f github
@@ -39,23 +35,39 @@ jobs:
       - name: Security Scan with Brakeman
         run: bundle exec brakeman --no-pager
 
-      - name: Run RSpec tests
+      - name: Instalar libs do sistema
+        run: sudo apt-get install
+
+      - name: Rodar Testes (RSpec)
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:password@localhost:5432/soat_challenge_fase_01_test
-          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          REDIS_URL: redis://localhost:6379/0
+          MONGO_URI: mongodb://localhost:27017/payment_test
+          DATABASE_URL: postgres://postgres:password@localhost:5432/order_test
         run: |
-          bundle exec rails db:prepare
           bundle exec rspec
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   
+        with:
+          args: >
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} 
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} 
+            -Dsonar.sources=.
+            -Dsonar.exclusions=**/*_spec.rb,**/spec/**,**/config/**,**/db/**,**/bin/**
+            -Dsonar.ruby.coverage.reportPaths=coverage/coverage.json
 
   build-and-deploy-to-ecr:
     name: Build and Deploy to ECR
     runs-on: ubuntu-latest
-    needs: test-and-lint
+    needs: test-and-analyze
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     env:
-      ECR_REPOSITORY: soat-challenge-fase04/soat4-order-service
+      ECR_REPOSITORY: soat-challenge/payment-service
       AWS_REGION: sa-east-1
 
     permissions:

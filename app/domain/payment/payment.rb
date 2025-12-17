@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Payment
   class Payment
     attr_accessor :pedido_id, :amount, :status, :payment_id, :qr_data, :items
 
-    def initialize(pedido_id:, amount:, status: "PENDENTE", payment_id: nil, qr_data: nil, items:)
+    def initialize(pedido_id:, amount:, items:, status: 'PENDENTE', payment_id: nil, qr_data: nil)
       @pedido_id = pedido_id
       @amount = amount
       @status = status
@@ -12,11 +14,11 @@ module Payment
     end
 
     def mark_as_paid!
-      @status = "PAGO"
+      @status = 'PAGO'
     end
 
     def paid?
-      @status == "PAGO"
+      @status == 'PAGO'
     end
 
     def update_status!(new_status)
