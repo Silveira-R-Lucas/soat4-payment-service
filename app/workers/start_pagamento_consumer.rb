@@ -1,0 +1,1 @@
+RabbitmqConsumer.new('carrinho.events', 'payment-service.carrinho-finalizado').start_listening

@@ -1,0 +1,86 @@
+services:
+  pagamento-service:
+    build: .
+    image: soat4/payment-service
+    container_name: pagamento-service
+    command: bash -c "bundle exec rails db:prepare && bundle exec rails s -p 3001 -b 0.0.0.0"
+    ports:
+      - "3001:3001"
+    environment:
+      RAILS_ENV: development
+      PORT: 3001
+      MONGO_URI: mongodb://mongo:27017/pagamento_service_development
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      MERCADOPAGO_TOKEN: ${MERCADOPAGO_TOKEN}
+      MERCADOPAGO_WEBHOOK_URL: http://localhost:3001/api/v1/pagamentos/webhook
+      MERCADOPAGO_BACK_URL_SUCCESS: http://localhost:3000/pagamento/sucesso
+      MERCADOPAGO_BACK_URL_FAILURE: http://localhost:3000/pagamento/erro
+      MERCADOPAGO_BACK_URL_PENDING: http://localhost:3000/pagamento/pendente
+    depends_on:
+      - mongo
+      - ngrok
+    volumes:
+      - .:/app
+    tty: true
+    stdin_open: true
+    networks:
+      - soat-network
+    env_file:
+      - .env
+      - .env.runtime
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - soat-network
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok
+    command: >
+      http pagamento-service:3001 --host-header=pagamento-service:3001
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    ports:
+      - "4040:4040"
+    networks:
+      - soat-network
+
+  webhook-bootstrap:
+    image: alpine:3.19
+    container_name: webhook-bootstrap
+    volumes:
+      - ./scripts:/scripts
+    command: >
+      sh -c "
+      apk add --no-cache curl jq &&
+      /scripts/bootstrap_notification_url.sh
+      "
+    depends_on:
+      - ngrok
+
+  payment-consumer:
+    image: soat4/payment-service
+    container_name: payment-consumer
+    command: bundle exec rails runner -e development app/workers/start_pagamento_consumer.rb
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - pagamento-service
+    restart: always
+    networks:
+      - soat-network
+
+volumes:
+  mongo_data:
+  rabbitmq_data:
+
+networks:
+  soat-network:
+    external: true
