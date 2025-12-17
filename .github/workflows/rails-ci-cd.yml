@@ -40,6 +40,12 @@ jobs:
       - name: Instalar libs do sistema
         run: sudo apt-get install
 
+      - name: Limpar caches e arquivos temporários
+        run: |
+          rm -rf tmp/cache
+          rm -rf tmp/pids
+          rm -rf tmp/sockets
+
       - name: Rodar Testes (RSpec)
         env:
           RAILS_ENV: test

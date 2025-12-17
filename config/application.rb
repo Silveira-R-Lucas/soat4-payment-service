@@ -13,6 +13,9 @@ module Soat4PaymentService
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
 
+    config.autoload_paths << Rails.root.join('app/domain')
+    config.autoload_paths << Rails.root.join('app/infrastructure')
+
     config.hosts << 'pagamento-service'
     config.hosts << /.*\.ngrok-free\.dev/
     # Configuration for the application, engines, and railties goes here.
