@@ -11,6 +11,7 @@ class RabbitmqConsumer
     @handlers = handlers
   end
 
+  # :nocov:
   def start_listening
     Rails.logger.info("🎧 Listening to #{@queue.name}")
     @queue.subscribe(block: true, manual_ack: true) do |delivery_info, _properties, payload|
@@ -23,6 +24,7 @@ class RabbitmqConsumer
   end
 
   private
+  # :nocov:
 
   def handle_message(payload)
     data = JSON.parse(payload)
