@@ -64,7 +64,7 @@ jobs:
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} 
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} 
             -Dsonar.sources=.
-            -Dsonar.exclusions=**/*_spec.rb,**/spec/**,**/config/**,**/db/**,**/bin/**
+            -Dsonar.exclusions=**/*_spec.rb,**/spec/**,**/config/**,**/db/**,**/bin/**,coverage/**,vendor/**,log/**,tmp/**,**/*.java
             -Dsonar.ruby.coverage.reportPaths=coverage/coverage.json
 
   build-and-deploy-to-ecr:
