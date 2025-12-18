@@ -82,4 +82,5 @@ group :test do
   gem 'rspec-rails'
   gem 'selenium-webdriver'
   gem 'simplecov', require: false
+  gem 'simplecov-json', require: false
 end
