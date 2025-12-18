@@ -82,5 +82,5 @@ group :test do
   gem 'rspec-rails'
   gem 'selenium-webdriver'
   gem 'simplecov', require: false
-  gem 'simplecov-lcov', require: false
+  gem 'simplecov-cobertura', require: false
 end

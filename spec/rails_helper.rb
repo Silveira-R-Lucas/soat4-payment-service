@@ -1,13 +1,9 @@
 require 'simplecov'
-require 'simplecov-lcov'
-
-SimpleCov::Formatter::LcovFormatter.config.report_with_single_file = true
-SimpleCov::Formatter::LcovFormatter.config.output_directory = 'coverage/lcov'
-SimpleCov::Formatter::LcovFormatter.config.lcov_file_name = 'soat4-payment-service.lcov'
+require 'simplecov-cobertura'
 
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
-  SimpleCov::Formatter::LcovFormatter
+  SimpleCov::Formatter::CoberturaFormatter
 ])
 
 SimpleCov.start 'rails' do
