@@ -1,9 +1,32 @@
 require 'simplecov'
-require 'simplecov-cobertura'
+
+module SimpleCov
+  module Formatter
+    class SonarGenericFormatter
+      def format(result)
+        xml = ['<coverage version="1">']
+        result.files.each do |file|
+          xml << "  <file path=\"#{file.project_filename}\">"
+          file.lines.each do |line|
+            next if line.never? || line.skipped?
+            xml << "    <lineToCover lineNumber=\"#{line.number}\" covered=\"#{line.covered?}\"/>"
+          end
+          xml << "  </file>"
+        end
+        xml << '</coverage>'
+        
+        Dir.mkdir(SimpleCov.coverage_path) unless Dir.exist?(SimpleCov.coverage_path)
+        
+        File.write(File.join(SimpleCov.coverage_path, 'sonarqube.xml'), xml.join("\n"))
+        puts "SonarQube coverage report generated: coverage/sonarqube.xml"
+      end
+    end
+  end
+end
 
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
-  SimpleCov::Formatter::CoberturaFormatter
+  SimpleCov::Formatter::SonarGenericFormatter
 ])
 
 SimpleCov.start 'rails' do
