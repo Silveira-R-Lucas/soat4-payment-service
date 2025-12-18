@@ -294,8 +294,10 @@ GEM
       docile (~> 1.1)
       simplecov-html (~> 0.11)
       simplecov_json_formatter (~> 0.1)
+    simplecov-cobertura (3.1.0)
+      rexml
+      simplecov (~> 0.19)
     simplecov-html (0.13.2)
-    simplecov-lcov (0.9.0)
     simplecov_json_formatter (0.1.4)
     sorted_set (1.0.3)
       rbtree
@@ -362,7 +364,7 @@ DEPENDENCIES
   rubocop
   selenium-webdriver
   simplecov
-  simplecov-lcov
+  simplecov-cobertura
   sprockets-rails
   sqlite3 (~> 1.4)
   stimulus-rails
