@@ -35,6 +35,7 @@ SimpleCov.start 'rails' do
   add_filter '/spec/'
   add_filter '/config/'
   minimum_coverage 80
+  enable_coverage :branch
 end
 
 ENV['RAILS_ENV'] ||= 'test'
