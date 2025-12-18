@@ -7,7 +7,7 @@ module SimpleCov
         xml = ['<coverage version="1">']
         
         result.files.each do |file|
-          clean_path = file.project_filename.gsub(/^\.\//, '')
+          clean_path = file.project_filename.gsub(/^(\.\/|\/)/, '')
           
           xml << "  <file path=\"#{clean_path}\">"
           file.lines.each do |line|
