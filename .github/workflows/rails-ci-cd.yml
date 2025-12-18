@@ -59,17 +59,10 @@ jobs:
           bundle exec rspec
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   
-        with:
-          args: >
-            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }} 
-            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }} 
-            -Dsonar.sources=.
-            -Dsonar.exclusions=**/*_spec.rb,**/spec/**,**/config/**,**/db/**,**/bin/**,coverage/**,vendor/**,log/**,tmp/**,**/*.java
-            -Dsonar.ruby.coverage.reportPaths=coverage/coverage.json
 
       - name: Publicar Resumo de Cobertura
         if: always()
