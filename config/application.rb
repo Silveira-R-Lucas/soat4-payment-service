@@ -13,6 +13,7 @@ module Soat4PaymentService
     
     config.autoload_paths += %W[
       #{config.root}/app/domain/use_cases/payment
+      #{config.root}/app/domain/payment
       #{config.root}/app/infrastructure/persistence/mongo
       #{config.root}/app/infrastructure/external_apis/mercado_pago
       #{config.root}/app/infrastructure/messaging
