@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PaymentNotification
   attr_reader :id, :status, :amount, :external_reference, :payment_method, :received_at
 
@@ -11,6 +13,6 @@ class PaymentNotification
   end
 
   def approved?
-    status == "approved"
+    status == 'approved'
   end
 end

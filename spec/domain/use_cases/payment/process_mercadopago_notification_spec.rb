@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe ProcessMercadopagoNotification do
@@ -14,20 +16,20 @@ RSpec.describe ProcessMercadopagoNotification do
   end
 
   describe '#call' do
-    let(:params) { { "type" => "payment" } }
+    let(:params) { { 'type' => 'payment' } }
     let(:headers) { {} }
-    let(:payment_id) { "12345" }
-    
+    let(:payment_id) { '12345' }
+
     context 'quando a notificação é válida e aprovada' do
       let(:api_details) do
         {
           successful: true,
           details: {
             id: payment_id,
-            status: "approved",
+            status: 'approved',
             transaction_amount: 50.0,
-            external_reference: "pedido_1",
-            payment_method_id: "pix"
+            external_reference: 'pedido_1',
+            payment_method_id: 'pix'
           }
         }
       end
@@ -35,12 +37,12 @@ RSpec.describe ProcessMercadopagoNotification do
       before do
         allow(webhook_adapter).to receive(:parse_notification).and_return(payment_id)
         allow(webhook_adapter).to receive(:get_payment_details).with(payment_id).and_return(api_details)
-        allow(repository).to receive(:find_by_pedido_id).with("pedido_1").and_return(payment_domain)
+        allow(repository).to receive(:find_by_pedido_id).with('pedido_1').and_return(payment_domain)
       end
 
       it 'publica evento PagamentoAprovado' do
-        expect(publisher).to receive(:publish).with("PagamentoAprovado", hash_including(status: "approved"))
-        
+        expect(publisher).to receive(:publish).with('PagamentoAprovado', hash_including(status: 'approved'))
+
         result = subject.call(params: params, headers: headers)
         expect(result).to be true
       end
@@ -52,9 +54,9 @@ RSpec.describe ProcessMercadopagoNotification do
           successful: true,
           details: {
             id: payment_id,
-            status: "rejected",
-            external_reference: "pedido_1",
-            payment_method_id: "credit_card"
+            status: 'rejected',
+            external_reference: 'pedido_1',
+            payment_method_id: 'credit_card'
           }
         }
       end
@@ -62,12 +64,12 @@ RSpec.describe ProcessMercadopagoNotification do
       before do
         allow(webhook_adapter).to receive(:parse_notification).and_return(payment_id)
         allow(webhook_adapter).to receive(:get_payment_details).with(payment_id).and_return(api_details)
-        allow(repository).to receive(:find_by_pedido_id).with("pedido_1").and_return(payment_domain)
+        allow(repository).to receive(:find_by_pedido_id).with('pedido_1').and_return(payment_domain)
       end
 
       it 'publica evento PagamentoNegado' do
-        expect(publisher).to receive(:publish).with("PagamentoNegado", hash_including(status: "rejected"))
-        
+        expect(publisher).to receive(:publish).with('PagamentoNegado', hash_including(status: 'rejected'))
+
         result = subject.call(params: params, headers: headers)
         expect(result).to be false # O retorno do método é false para "não aprovado" conforme implementação
       end
@@ -81,8 +83,8 @@ RSpec.describe ProcessMercadopagoNotification do
 
       it 'loga erro se a chamada da API de detalhes falhar' do
         allow(webhook_adapter).to receive(:parse_notification).and_return(payment_id)
-        allow(webhook_adapter).to receive(:get_payment_details).and_return({ successful: false, error: "Erro" })
-        
+        allow(webhook_adapter).to receive(:get_payment_details).and_return({ successful: false, error: 'Erro' })
+
         expect(Rails.logger).to receive(:error).with(/Falha ao pegar detalhes/)
         expect(subject.call(params: params, headers: headers)).to be false
       end

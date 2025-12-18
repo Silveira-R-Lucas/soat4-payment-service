@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 class PaymentDocument
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  store_in collection: "payments"
+  store_in collection: 'payments'
 
   field :pedido_id, type: String
   field :amount, type: Float
@@ -15,7 +17,7 @@ class PaymentDocument
   index({ pedido_id: 1 })
 
   def to_domain
-    ::Payment::Payment.new(
+    Payment.new(
       pedido_id: pedido_id,
       amount: amount,
       status: status,

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ProcessMercadopagoNotification
   def initialize(mercadopago_webhook_adapter:, payment_repository:)
     @mercadopago_webhook_adapter = mercadopago_webhook_adapter
@@ -28,27 +30,25 @@ class ProcessMercadopagoNotification
     payment = @payment_repository.find_by_pedido_id(full_payment_data[:external_reference])
     raise ArgumentError, "Número de pedido #{full_payment_data[:external_reference]} não encontrado." unless payment
 
-    update_payment = UpdatePayment.new(payment_repository: MongoPaymentRepository.new)
-                                          .call(
-                                            pedido_id: notification.external_reference,
-                                            new_status: notification.status,
-                                          )
+    UpdatePayment.new(payment_repository: MongoPaymentRepository.new)
+                 .call(
+                   pedido_id: notification.external_reference,
+                   new_status: notification.status
+                 )
 
-
+    publisher = RabbitmqPublisher.new('pagamento.events')
     if notification.approved?
-      publisher = RabbitmqPublisher.new("pagamento.events")
-      publisher.publish("PagamentoAprovado", {
-        pedido_id: notification.external_reference,
-        status: notification.status,
-        items:  payment.items
-      })
+      publisher.publish('PagamentoAprovado', {
+                          pedido_id: notification.external_reference,
+                          status: notification.status,
+                          items: payment.items
+                        })
       true
     else
-      publisher = RabbitmqPublisher.new("pagamento.events")
-      publisher.publish("PagamentoNegado", {
-        pedido_id: notification.external_reference,
-        status: notification.status,
-      })
+      publisher.publish('PagamentoNegado', {
+                          pedido_id: notification.external_reference,
+                          status: notification.status
+                        })
       false
     end
   rescue StandardError => e
