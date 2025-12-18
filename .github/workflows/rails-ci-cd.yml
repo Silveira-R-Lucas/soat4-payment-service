@@ -59,11 +59,6 @@ jobs:
         run: |
           bundle exec rspec
 
-      - name: Corrigir caminhos do Coverage para o Sonar
-        run: |
-          sed -i 's@'$PWD'/@@g' coverage/coverage.json
-          head -n 20 coverage/coverage.json
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
