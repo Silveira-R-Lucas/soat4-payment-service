@@ -8,7 +8,7 @@ class CreatePayment
 
   def execute(pedido_id, total_amount, items)
     mp_response = @payment_gateway.generate_qr_payment(pedido_id, total_amount, items)
-    payment = ::Payment::Payment.new(
+    payment = Payment.new(
       pedido_id: pedido_id,
       amount: total_amount,
       payment_id: mp_response[:response]['in_store_order_id'],

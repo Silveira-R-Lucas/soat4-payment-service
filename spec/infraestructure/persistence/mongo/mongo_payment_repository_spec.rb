@@ -11,7 +11,7 @@ RSpec.describe MongoPaymentRepository do
     it 'cria um novo documento se não existir' do
       result = subject.save(payment)
 
-      expect(result).to be_a(Payment::Payment)
+      expect(result).to be_a(Payment)
       doc = PaymentDocument.find_by(payment_id: 'MP_123')
       expect(doc).not_to be_nil
       expect(doc.amount).to eq(50.0)
@@ -35,7 +35,7 @@ RSpec.describe MongoPaymentRepository do
 
       result = subject.find_by_pedido_id('PED_BUSCA')
 
-      expect(result).to be_a(Payment::Payment)
+      expect(result).to be_a(Payment)
       expect(result.pedido_id).to eq('PED_BUSCA')
     end
 

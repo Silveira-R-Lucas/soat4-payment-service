@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :payment, class: 'Payment::Payment' do
+  factory :payment, class: 'Payment' do
     pedido_id { Faker::Number.number(digits: 4).to_s }
     amount { Faker::Commerce.price.to_f }
     status { 'PENDENTE' }

@@ -17,7 +17,7 @@ class PaymentDocument
   index({ pedido_id: 1 })
 
   def to_domain
-    ::Payment::Payment.new(
+    Payment.new(
       pedido_id: pedido_id,
       amount: amount,
       status: status,

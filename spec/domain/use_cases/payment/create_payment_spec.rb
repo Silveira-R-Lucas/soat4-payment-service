@@ -20,7 +20,7 @@ RSpec.describe CreatePayment do
 
     it 'gera QR Code no gateway e salva o pagamento' do
       expect(gateway).to receive(:generate_qr_payment).with(pedido_id, amount, items).and_return(gateway_response)
-      expect(repository).to receive(:save).with(an_instance_of(Payment::Payment))
+      expect(repository).to receive(:save).with(an_instance_of(Payment))
 
       result = subject.execute(pedido_id, amount, items)
 
