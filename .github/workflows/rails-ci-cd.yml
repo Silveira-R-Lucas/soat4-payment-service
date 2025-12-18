@@ -49,6 +49,7 @@ jobs:
           rm -rf tmp/cache
           rm -rf tmp/pids
           rm -rf tmp/sockets
+          rm -rf coverage
 
       - name: Rodar Testes (RSpec)
         env:
@@ -93,6 +94,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
