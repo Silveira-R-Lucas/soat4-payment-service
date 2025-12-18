@@ -2,28 +2,17 @@
 
 require_relative 'boot'
 
-require 'rails/all'
+require "rails/all"
 
-# Require the gems listed in Gemfile, including any gems
-# you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 module Soat4PaymentService
   class Application < Rails::Application
-    # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
-
-    config.autoload_paths << Rails.root.join('app/domain')
-    config.autoload_paths << Rails.root.join('app/infrastructure')
 
     config.hosts << 'pagamento-service'
     config.hosts << /.*\.ngrok-free\.dev/
-    # Configuration for the application, engines, and railties goes here.
-    #
-    # These settings can be overridden in specific environments using the files
-    # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+
+    config.api_only = true
   end
 end

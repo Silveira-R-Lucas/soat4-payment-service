@@ -9,16 +9,6 @@
           null
         ]
       },
-      "/home/lucas/Projetos/soat-fase-04/soat4-payment-service/app/channels/application_cable/connection.rb": {
-        "lines": [
-          null,
-          null,
-          1,
-          1,
-          null,
-          null
-        ]
-      },
       "/home/lucas/Projetos/soat-fase-04/soat4-payment-service/app/domain/payment/payment_notification.rb": {
         "lines": [
           null,
@@ -629,6 +619,17 @@
         ],
         "branches": {}
       },
+      "/home/lucas/Projetos/soat-fase-04/soat4-payment-service/app/channels/application_cable/connection.rb": {
+        "lines": [
+          null,
+          null,
+          0,
+          0,
+          0,
+          0
+        ],
+        "branches": {}
+      },
       "/home/lucas/Projetos/soat-fase-04/soat4-payment-service/app/domain/ports/payment_repository.rb": {
         "lines": [
           null,
@@ -666,6 +667,6 @@
         "branches": {}
       }
     },
-    "timestamp": 1766009815
+    "timestamp": 1766016112
   }
 }
