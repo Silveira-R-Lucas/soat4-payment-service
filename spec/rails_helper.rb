@@ -20,4 +20,7 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
 
   config.include FactoryBot::Syntax::Methods
+  config.before(:each) do
+    allow(Bunny).to receive(:new).and_return(instance_double(Bunny::Session, start: nil, create_channel: instance_double(Bunny::Channel, fanout: nil, queue: nil)))
+  end
 end

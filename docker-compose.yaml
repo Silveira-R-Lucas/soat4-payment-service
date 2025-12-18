@@ -68,7 +68,7 @@ services:
   payment-consumer:
     image: soat4/payment-service
     container_name: payment-consumer
-    command: bundle exec rails runner -e development app/workers/start_pagamento_consumer.rb
+    command: bundle exec rails runner "StartPagamentoConsumer.run"
     environment:
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     depends_on:
