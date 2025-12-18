@@ -4,9 +4,6 @@ module Api
   module V1
     class PaymentsController < ApplicationController
       protect_from_forgery with: :null_session
-      require_dependency Rails.root.join('app/infrastructure/persistence/mongo/mongo_payment_repository.rb')
-      require_dependency Rails.root.join('app/infrastructure/external_apis/mercado_pago/mercadopago_payment_gateway_adapter.rb')
-      require_dependency Rails.root.join('app/domain/use_cases/payment/create_payment.rb')
 
       def create
         repository = MongoPaymentRepository.new
