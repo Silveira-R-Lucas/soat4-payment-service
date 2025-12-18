@@ -59,6 +59,13 @@ jobs:
         run: |
           bundle exec rspec
 
+      - name: Debug - Listar Coverage
+        run: |
+          echo "Conteúdo da pasta coverage:"
+          ls -la coverage/
+          echo "Verificando se o XML existe:"
+          test -f coverage/sonarqube.xml && echo "XML ENCONTRADO!" || echo "XML NÃO ENCONTRADO!"
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
@@ -67,18 +74,6 @@ jobs:
         with:
           args: >
             -Dsonar.verbose=true
-
-      - name: Publicar Resumo de Cobertura
-        if: always()
-        run: |
-          COVERAGE=$(jq '.metrics.covered_percent' coverage/coverage.json)
-          echo "### 📊 Cobertura de Código: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
-          
-          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-            echo "❌ Cobertura abaixo de 80%!" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ Meta de 80% atingida!" >> $GITHUB_STEP_SUMMARY
-          fi
 
   build-and-deploy-to-ecr:
     name: Build and Deploy to ECR
