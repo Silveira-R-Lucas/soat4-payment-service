@@ -59,13 +59,6 @@ jobs:
         run: |
           bundle exec rspec
 
-      - name: Debug - Listar Coverage
-        run: |
-          echo "Conteúdo da pasta coverage:"
-          ls -la coverage/
-          echo "Verificando se o XML existe:"
-          test -f coverage/sonarqube.xml && echo "XML ENCONTRADO!" || echo "XML NÃO ENCONTRADO!"
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
