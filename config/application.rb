@@ -2,7 +2,7 @@
 
 require_relative 'boot'
 
-require "rails/all"
+require 'rails/all'
 
 Bundler.require(*Rails.groups)
 
@@ -10,7 +10,7 @@ module Soat4PaymentService
   class Application < Rails::Application
     config.load_defaults 7.0
     config.api_only = true
-    
+
     config.autoload_paths += %W[
       #{config.root}/app/domain/use_cases/payment
       #{config.root}/app/domain/payment
@@ -20,8 +20,8 @@ module Soat4PaymentService
     ]
 
     Rails.autoloaders.main.ignore(Rails.root.join('app/domain/use_cases'))
-    Rails.autoloaders.main.ignore(Rails.root.join('app/infrastructure')) 
-    
+    Rails.autoloaders.main.ignore(Rails.root.join('app/infrastructure'))
+
     config.autoload_paths << Rails.root.join('app/domain')
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Payment
   attr_accessor :pedido_id, :amount, :status, :payment_id, :qr_data, :items
 
@@ -22,4 +24,3 @@ class Payment
     @status = new_status
   end
 end
-
