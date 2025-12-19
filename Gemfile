@@ -4,13 +4,13 @@ source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '3.2.2'
+gem 'brakeman'
 gem 'bunny'
 gem 'curb'
 gem 'dotenv-rails'
 gem 'mongoid', '~> 9.0'
 gem 'pry'
 gem 'rubocop'
-gem 'brakeman'
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '~> 7.0.10'
 

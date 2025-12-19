@@ -54,20 +54,9 @@ jobs:
       - name: Rodar Testes (RSpec)
         env:
           RAILS_ENV: test
-          REDIS_URL: redis://localhost:6379/0
           MONGO_URI: mongodb://localhost:27017/payment_test
         run: |
           bundle exec rspec
-
-      - name: Fix coverage paths for Sonar
-        run: |
-          ruby -rjson -e '
-            file = "coverage/coverage.json"
-            data = JSON.parse(File.read(file))
-            pwd = Dir.pwd + "/"
-            data["coverage"] = data["coverage"].transform_keys { |k| k.start_with?(pwd) ? k.sub(pwd, "") : k }
-            File.write(file, JSON.generate(data))
-          '
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
@@ -83,18 +72,6 @@ jobs:
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Publicar Resumo de Cobertura
-        if: always()
-        run: |
-          COVERAGE=$(jq '.metrics.covered_percent' coverage/coverage.json)
-          echo "### 📊 Cobertura de Código: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
-          
-          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
-            echo "❌ Cobertura abaixo de 80%!" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ Meta de 80% atingida!" >> $GITHUB_STEP_SUMMARY
-          fi
 
   build-and-deploy-to-ecr:
     name: Build and Deploy to ECR

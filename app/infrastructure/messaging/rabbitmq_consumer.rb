@@ -24,6 +24,7 @@ class RabbitmqConsumer
   end
 
   private
+
   # :nocov:
 
   def handle_message(payload)
