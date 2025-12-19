@@ -59,6 +59,16 @@ jobs:
         run: |
           bundle exec rspec
 
+      - name: Fix coverage paths for Sonar
+        run: |
+          ruby -rjson -e '
+            file = "coverage/coverage.json"
+            data = JSON.parse(File.read(file))
+            pwd = Dir.pwd + "/"
+            data["coverage"] = data["coverage"].transform_keys { |k| k.start_with?(pwd) ? k.sub(pwd, "") : k }
+            File.write(file, JSON.generate(data))
+          '
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
