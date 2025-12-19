@@ -1,38 +1,9 @@
 require 'simplecov'
-
-module SimpleCov
-  module Formatter
-    class SonarGenericFormatter
-      def format(result)
-        xml = ['<coverage version="1">']
-        
-        result.files.each do |file|
-          clean_path = file.project_filename.gsub(/^(\.\/|\/)/, '')
-          
-          xml << "  <file path=\"#{clean_path}\">"
-          file.lines.each do |line|
-            next if line.never? || line.skipped? || line.coverage.nil?
-            
-            is_covered = line.covered? ? 'true' : 'false'
-            xml << "    <lineToCover lineNumber=\"#{line.number}\" covered=\"#{is_covered}\"/>"
-          end
-          xml << "  </file>"
-        end
-        xml << '</coverage>'
-        
-        Dir.mkdir(SimpleCov.coverage_path) unless Dir.exist?(SimpleCov.coverage_path)
-        file_path = File.join(SimpleCov.coverage_path, 'sonarqube.xml')
-        
-        File.write(file_path, xml.join("\n"))
-        puts "::notice:: Relatório SonarQube gerado em: #{file_path}"
-      end
-    end
-  end
-end
+require 'simplecov-json'
 
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
-  SimpleCov::Formatter::SonarGenericFormatter
+  SimpleCov::Formatter::JSONFormatter
 ])
 
 SimpleCov.start 'rails' do
