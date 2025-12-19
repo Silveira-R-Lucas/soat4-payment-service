@@ -1,5 +1,6 @@
 require 'simplecov'
-require 'simplecov-json'
+require 'simplecov_json_formatter'
+
 SimpleCov.formatters = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
   SimpleCov::Formatter::JSONFormatter
@@ -11,6 +12,7 @@ SimpleCov.start 'rails' do
   add_filter '/spec/'
   add_filter '/config/'
   minimum_coverage 80
+  enable_coverage :branch
 end
 
 ENV['RAILS_ENV'] ||= 'test'
