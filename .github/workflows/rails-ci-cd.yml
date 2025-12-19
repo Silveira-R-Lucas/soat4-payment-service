@@ -68,6 +68,18 @@ jobs:
           args: >
             -Dsonar.verbose=true
 
+      - name: Publicar Resumo de Cobertura
+        if: always()
+        run: |
+          COVERAGE=$(jq '.metrics.covered_percent' coverage/coverage.json)
+          echo "### 📊 Cobertura de Código: ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+          
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "❌ Cobertura abaixo de 80%!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Meta de 80% atingida!" >> $GITHUB_STEP_SUMMARY
+          fi
+
   build-and-deploy-to-ecr:
     name: Build and Deploy to ECR
     runs-on: ubuntu-latest
