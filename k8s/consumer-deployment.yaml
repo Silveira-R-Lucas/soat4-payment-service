@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-consumer
+spec:
+  selector:
+    matchLabels:
+      app: payment-consumer
+  template:
+    metadata:
+      labels:
+        app: payment-consumer
+    spec:
+      containers:
+      - name: consumer
+        image: soat4/payment-service:latest
+        command: ["bundle", "exec", "rails", "runner", "StartPagamentoConsumer.run"] 
+        envFrom:
+        - configMapRef:
+            name: payment-service-config
+        - secretRef:
+            name: payment-service-secrets
