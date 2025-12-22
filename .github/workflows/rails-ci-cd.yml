@@ -128,14 +128,20 @@ jobs:
           fi
 
       - name: Sync Master Key to AWS Secrets Manager
+        env:
+          MASTER_KEY_VALUE: ${{ secrets.RAILS_MASTER_KEY }} 
         run: |
           SECRET_NAME="soat/payment-service/master_key"
-          MASTER_KEY=$(cat config/master.key)
+
+          if [ -z "$MASTER_KEY_VALUE" ]; then
+            echo "Erro: A variável RAILS_MASTER_KEY está vazia."
+            exit 1
+          fi
 
           if aws secretsmanager describe-secret --secret-id "$SECRET_NAME" > /dev/null 2>&1; then
             echo "Atualizando chave existente..."
-            aws secretsmanager put-secret-value --secret-id "$SECRET_NAME" --secret-string "$MASTER_KEY"
+            aws secretsmanager put-secret-value --secret-id "$SECRET_NAME" --secret-string "$MASTER_KEY_VALUE"
           else
             echo "Criando novo segredo para a Master Key..."
-            aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "$MASTER_KEY" --description "Master Key do Payment Service"
+            aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "$MASTER_KEY_VALUE" --description "Master Key do payment Service"
           fi
