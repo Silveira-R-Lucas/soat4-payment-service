@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main"]
 
 permissions:
   contents: read 
@@ -126,26 +126,6 @@ jobs:
           else
             aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "$IMAGE_TAG" --description "Tag da imagem do payment-service"
           fi
-
-
-      - name: Update Kubeconfig
-        run: |
-          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
-
-      - name: Deploy to Kubernetes
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
-        run: |
-          # Substitui a imagem nos arquivos yaml pela imagem recém buildada
-          sed -i "s|image: .*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" k8s/*.yaml
-          
-          # Aplica todas as configurações e deployments
-          kubectl apply -f k8s/configs.yaml
-          kubectl apply -f k8s/api-deployment.yaml
-          kubectl apply -f k8s/consumer-deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/ingress.yaml
 
       - name: Verify Rollout
         run: |
