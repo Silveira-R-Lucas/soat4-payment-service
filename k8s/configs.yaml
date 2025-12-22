@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: payment-service-config
+data:
+  MONGO_URI: "mongodb://mongo-service:27017/pagamento_production"
+  PORT: "3001"
+  MERCADOPAGO_NOTIFICATION_URL: MERCADOPAGO_NOTIFICATION_URL
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payment-service-secrets
+type: Opaque
+data:
+  RAILS_MASTER_KEY: "..." 
+  RABBITMQ_URL: "..."
+  MERCADOPAGO_TOKEN: "..."
+  MERCADOPAGO_SECRET: "..."
+  MERCADOPAGO_USER_ID: "..."
+  MERCADOPAGO_EXTERNAL_POS_ID: "..."
