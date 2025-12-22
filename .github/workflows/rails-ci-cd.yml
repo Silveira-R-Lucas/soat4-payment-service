@@ -127,12 +127,6 @@ jobs:
             aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "$IMAGE_TAG" --description "Tag da imagem do payment-service"
           fi
 
-      - name: Verify Rollout
-        run: |
-          kubectl rollout status deployment/payment-api
-          kubectl rollout status deployment/payment-worker
-          kubectl rollout status deployment/payment-consumer
-
       - name: Sync Master Key to AWS Secrets Manager
         run: |
           SECRET_NAME="soat/payment-service/master_key"
