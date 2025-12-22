@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main"]
 
 permissions:
   contents: read 
@@ -82,7 +82,7 @@ jobs:
     env:
       ECR_REPOSITORY: soat-challenge/payment-service
       AWS_REGION: sa-east-1
-      CLUSTER_NAME: soat-cluster-eks
+      CLUSTER_NAME: soat-challenge-cluster
 
     steps:
       - name: Checkout code
@@ -102,69 +102,34 @@ jobs:
       - name: Build, tag, and push image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-
-      - name: Update Kubeconfig
-        run: |
-          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
-
-      - name: Deploy Ngrok and Fetch URL
-        run: |
-          # 1. Sobe o ngrok no cluster
-          kubectl apply -f k8s/ngrok.yaml
-          
-          # 2. Aguarda o ngrok estar pronto
-          kubectl wait --for=condition=available --timeout=60s deployment/ngrok-dx
-          
-          # 3. Executa um comando temporário no cluster para pegar a URL via API do ngrok
-          # O script bootstrap_notification_url.sh faz exatamente isso
-          NGROK_URL=$(kubectl exec deployment/ngrok-dx -- curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-          
-          if [ -z "$NGROK_URL" ] || [ "$NGROK_URL" == "null" ]; then
-            echo "Erro ao capturar URL do ngrok"
-            exit 1
-          fi
-          
-          NOTIFICATION_URL="${NGROK_URL}/api/v1/payment_notification"
-          echo "URL Detectada: $NOTIFICATION_URL"
-          
-          # 4. Cria ou Atualiza o Secret dinamicamente
-          kubectl create secret generic payment-dynamic-configs \
-            --from-literal=MERCADOPAGO_NOTIFICATION_URL=$NOTIFICATION_URL \
-            --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Deploy to Kubernetes
+      - name: Update Image Tag in Secrets Manager
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: sa-east-1
         run: |
-          # Substitui a imagem nos arquivos yaml pela imagem recém buildada
-          sed -i "s|image: .*|image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG|g" k8s/*.yaml
+          IMAGE_TAG=${{ github.sha }}-${{ github.run_number }}
+          SECRET_NAME="soat/payment-service/image_tag"
           
-          # Aplica todas as configurações e deployments
-          kubectl apply -f k8s/configs.yaml
-          kubectl apply -f k8s/ngrok-deployment.yaml
-          kubectl apply -f k8s/api-deployment.yaml
-          kubectl apply -f k8s/consumer-deployment.yaml
-          kubectl apply -f k8s/service.yaml
-          kubectl apply -f k8s/ingress.yaml
-
-      - name: Verify Rollout
-        run: |
-          kubectl rollout status deployment/payment-api
-          kubectl rollout status deployment/payment-worker
-          kubectl rollout status deployment/payment-consumer
+          echo "Atualizando a tag $IMAGE_TAG no segredo $SECRET_NAME"
+          
+          if aws secretsmanager describe-secret --secret-id "$SECRET_NAME" > /dev/null 2>&1; then
+            aws secretsmanager put-secret-value --secret-id "$SECRET_NAME" --secret-string "$IMAGE_TAG"
+          else
+            aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "$IMAGE_TAG" --description "Tag da imagem do payment-service"
+          fi
 
       - name: Sync Master Key to AWS Secrets Manager
         run: |
-          SECRET_NAME="soat/order-service/master_key"
+          SECRET_NAME="soat/payment-service/master_key"
           MASTER_KEY=$(cat config/master.key)
 
           if aws secretsmanager describe-secret --secret-id "$SECRET_NAME" > /dev/null 2>&1; then
@@ -172,5 +137,5 @@ jobs:
             aws secretsmanager put-secret-value --secret-id "$SECRET_NAME" --secret-string "$MASTER_KEY"
           else
             echo "Criando novo segredo para a Master Key..."
-            aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "$MASTER_KEY" --description "Master Key do Order Service"
+            aws secretsmanager create-secret --name "$SECRET_NAME" --secret-string "$MASTER_KEY" --description "Master Key do Payment Service"
           fi
